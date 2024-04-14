@@ -1,5 +1,6 @@
 export const config = {
     url: 'https://abp.antosubash.com',
+    audience: 'https://abp.antosubash.com',
     client_id: 'AbpReact_Next_App',
     scope: 'openid profile email AbpTemplate',
     redirect_uri: 'http://localhost:3000/api/auth/callback/openiddict',

@@ -3,16 +3,19 @@ import { getIronSession } from "iron-session";
 import { cookies } from "next/headers";
 import { Issuer } from "openid-client";
 import { config } from "./config";
+
 export interface SessionData {
     isLoggedIn: boolean;
     access_token?: string;
     id_token?: string;
+    code_verifier?: string;
 }
 
 export const defaultSession: SessionData = {
     isLoggedIn: false,
     access_token: undefined,
     id_token: undefined,
+    code_verifier: undefined
 };
 
 export const sessionOptions: SessionOptions = {
@@ -21,7 +24,7 @@ export const sessionOptions: SessionOptions = {
     cookieOptions: {
         // secure only works in `https` environments
         // if your localhost is not on `https`, then use: `secure: process.env.NODE_ENV === "production"`
-        secure: true,
+        secure: process.env.NODE_ENV === "production",
     },
 };
 
@@ -32,14 +35,15 @@ export function sleep(ms: number) {
 export async function getSession() {
     const session = await getIronSession<SessionData>(cookies(), sessionOptions);
 
-    if (session.isLoggedIn) {
+    if (!session.isLoggedIn) {
         session.isLoggedIn = defaultSession.isLoggedIn;
         session.access_token = defaultSession.access_token;
         session.id_token = defaultSession.id_token;
     }
-
     return session;
 }
+
+
 
 export async function getClient() {
     const abpIssuer = await Issuer.discover(config.url);

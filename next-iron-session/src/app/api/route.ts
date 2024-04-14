@@ -4,5 +4,5 @@ import { cookies } from "next/headers";
 
 export async function GET() { 
     const session = await getIronSession<SessionData>(cookies(), sessionOptions);
-    return Response.json({ access_token: session.access_token})
+    return Response.json({ access_token: session.access_token });
 }
