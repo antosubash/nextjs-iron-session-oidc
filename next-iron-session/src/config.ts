@@ -8,5 +8,6 @@ export const config = {
     automaticSilentRenew: true,
     loadUserInfo: true,
     response_type: 'code',
-    grant_type: 'authorization_code'
+    grant_type: 'authorization_code',
+    post_login_route: 'http://localhost:3000',
 };
