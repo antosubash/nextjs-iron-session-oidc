@@ -1,6 +1,19 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { OpenAPI } from "@/client";
+import { getSession } from "@/lib";
+
+OpenAPI.BASE = process.env.NEXT_PUBLIC_API_URL!;
+
+OpenAPI.interceptors.request.use(async (options) => {
+  const session = await getSession();
+  options.headers = {
+    ...options.headers,
+    Authorization: `Bearer ${session.access_token}`,
+  };
+  return options;
+});
 
 const inter = Inter({ subsets: ["latin"] });
 

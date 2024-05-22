@@ -7,7 +7,7 @@ export default function useSession() {
     useEffect(() => {
         const fetchSession = async () => {
             try {
-                const response = await fetch('/api/session');
+                const response = await fetch('/session');
                 if (response.ok) {
                     const session = await response.json() as SessionData;
                     setSession(session);
