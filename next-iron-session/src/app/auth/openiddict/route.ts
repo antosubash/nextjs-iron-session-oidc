@@ -1,5 +1,6 @@
 import { config } from '@/config';
 import { getClient, getSession } from '@/lib';
+import { RedisSession, createRedisInstance } from '@/utils/redis';
 import { IncomingMessage } from 'http';
 
 export async function GET(request: IncomingMessage) { 
@@ -7,10 +8,9 @@ export async function GET(request: IncomingMessage) {
     const client = await getClient();
     const params = client.callbackParams(request);
     const tokenSet = await client.callback(config.redirect_uri, params, { code_verifier: session.code_verifier });
-    const { access_token } = tokenSet;
+    const { access_token, refresh_token } = tokenSet;
     session.isLoggedIn = true;
     session.access_token = access_token;
-    // session.refresh_token = refresh_token;
     // call userinfo endpoint to get user info
     const userinfo = await client.userinfo(tokenSet);
     // console.log(userinfo);
@@ -23,5 +23,14 @@ export async function GET(request: IncomingMessage) {
     };
 
     await session.save();
+
+    const redisSessionData = {
+        access_token: access_token,
+        refresh_token: refresh_token,
+    } as RedisSession;
+
+    const redis = createRedisInstance();
+    await redis.set(session.userInfo.sub, JSON.stringify(redisSessionData));
+    await redis.quit();
     return Response.redirect(config.post_login_route);
 }

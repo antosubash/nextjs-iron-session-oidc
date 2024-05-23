@@ -1,24 +1,25 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
-import { getSession } from "./lib";
+import { NextRequest } from "next/server";
+import { SessionData } from "./lib";
+import { getIronSession } from "iron-session";
+import { cookies } from "next/headers";
+import { sessionOptions } from "./sessionOptions";
 
 export async function middleware(request: NextRequest) {
+    const session = await getIronSession<SessionData>(cookies(), sessionOptions);
+    console.log(session);
 
-    try {
-        const session = await getSession();
-        console.log("middleware_session", session);
-        console.log("middleware_session", session);
-        if (!session.isLoggedIn) {
-            return NextResponse.redirect("/login");
-        }
-    } catch (error) {
-        console.log("middleware_error", error);
-    }
-    
+    // const response = NextResponse.next()
+    // return response;
 }
 
 export const config = {
     matcher: [
-        "/admin"
+        /*
+        * Match all request paths except for the ones starting with:
+        * - api (API routes)
+        * - _next/static (static files)
+        * - favicon.ico (favicon file)
+        */
+        '/((?!api|_next/static|_next/image|favicon.ico).*)',
     ],
 };

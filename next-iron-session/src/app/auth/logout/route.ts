@@ -1,19 +1,23 @@
 import { config  } from '@/config';
 import { defaultSession, getClient, getSession } from '@/lib';
+import { RedisSession, createRedisInstance } from '@/utils/redis';
 import { generators } from 'openid-client';
 
 export async function GET() {
     const session = await getSession();
+    const redis = createRedisInstance();
+    var redisSessionData = await redis.get(session?.userInfo?.sub!)
+    var parsedSessionData = JSON.parse(redisSessionData!) as RedisSession;
     const client = await getClient();
     var endSession = client.endSessionUrl({
         post_logout_redirect_uri: config.post_logout_redirect_uri,
-        id_token_hint: session.refresh_token,
+        id_token_hint: parsedSessionData.refresh_token,
         state: generators.state()
     });
     session.isLoggedIn = defaultSession.isLoggedIn;
     session.access_token = defaultSession.access_token;
-    session.refresh_token = defaultSession.refresh_token;
     session.userInfo = defaultSession.userInfo;
+    await redis.del(session?.userInfo?.sub!);
     await session.save();
     return Response.redirect(endSession);
 }
