@@ -5,12 +5,12 @@ import { NextApiRequest } from 'next';
 
 export async function GET(request: NextApiRequest) {
     const session = await getSession();
-    let { returnURL } = request.query as { returnURL: string };
+    const { returnURL } = request.query;
     if (!session.isLoggedIn) {
         return Response.redirect('/login');
     }
     if (!returnURL) {
-        returnURL = '/';
+        return Response.redirect('/');
     }
     var token = session.access_token;
     if (token) {
@@ -45,5 +45,5 @@ export async function GET(request: NextApiRequest) {
         }
     }
     
-    return Response.redirect(returnURL);
+    return Response.redirect(returnURL as string);
 }
