@@ -1,7 +1,7 @@
 import { getIronSession } from "iron-session";
 import { cookies } from "next/headers";
 import { Issuer } from "openid-client";
-import { config } from "./config";
+import { clientConfig } from "./config";
 import { sessionOptions } from "./sessionOptions";
 
 export interface SessionData {
@@ -13,7 +13,7 @@ export interface SessionData {
         name: string,
         email: string,
         email_verified: boolean,
-        tenantid?: string
+        tenantId?: string
     };
 }
 
@@ -41,11 +41,11 @@ export async function getSession() {
 
 
 export async function getClient() {
-    const abpIssuer = await Issuer.discover(config.url!);
+    const abpIssuer = await Issuer.discover(clientConfig.url!);
     const client = new abpIssuer.Client({
-        client_id: config.client_id!,
+        client_id: clientConfig.client_id!,
         response_types: ['code'],
-        redirect_uris: [config.redirect_uri],
+        redirect_uris: [clientConfig.redirect_uri],
         token_endpoint_auth_method: "none"
     });
     return client;

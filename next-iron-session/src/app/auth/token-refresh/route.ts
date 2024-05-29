@@ -5,7 +5,13 @@ import { NextApiRequest } from 'next';
 
 export async function GET(request: NextApiRequest) {
     const session = await getSession();
-    const { returnURL } = request.query;
+    let { returnURL } = request.query as { returnURL: string };
+    if (!session.isLoggedIn) {
+        return Response.redirect('/login');
+    }
+    if (!returnURL) {
+        returnURL = '/';
+    }
     var token = session.access_token;
     if (token) {
         var decoded = jwtDecode(token!);
@@ -39,5 +45,5 @@ export async function GET(request: NextApiRequest) {
         }
     }
     
-    return Response.redirect(returnURL as string);
+    return Response.redirect(returnURL);
 }

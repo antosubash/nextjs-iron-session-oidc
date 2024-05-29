@@ -1,7 +1,6 @@
-import { abpApplicationConfigurationGet } from '@/client';
 import Login from '../components/Login';
+import Link from 'next/link';
 export default async function Home() {
-  const appConfig = await abpApplicationConfigurationGet();
   return (
     <main className="flex min-h-[100dvh] items-center justify-center bg-gray-100 px-4 dark:bg-gray-900">
       <div className="max-w-md w-full space-y-4 text-center">
@@ -12,10 +11,10 @@ export default async function Home() {
           Sign in to your account to continue.
         </p>
         <Login />
-        <div>
-          <pre>{JSON.stringify(appConfig.currentUser, null, 2)}</pre>
-        </div>
       </div>
+      <Link href="/admin" className="text-blue-500 hover:underline">
+        Go to admin
+      </Link>
     </main>
   );
 }

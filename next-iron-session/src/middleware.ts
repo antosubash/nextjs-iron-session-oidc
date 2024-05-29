@@ -4,6 +4,7 @@ import { getIronSession } from "iron-session";
 import { cookies } from "next/headers";
 import { sessionOptions } from "./sessionOptions";
 import { jwtDecode } from 'jwt-decode';
+
 export async function middleware(request: NextRequest) {
     const session = await getIronSession<SessionData>(cookies(), sessionOptions);
     var token = session.access_token;
@@ -12,17 +13,16 @@ export async function middleware(request: NextRequest) {
         var expirationTime = decoded?.exp! * 1000;
         var currentTime = new Date().getTime();
         var expired = false;
+        console.log('Token expiration time: ' + expirationTime);
         if (expirationTime < currentTime) {
             expired = true;
+            console.log('Token expired');
         }
         if (expired) {
-            await refreshToken();
+            const redirect_uri = request.url;
+            return Response.redirect(`/auth/token-refresh?returnURL=${redirect_uri}`);
         }
     }
-
-
-    // const response = NextResponse.next()
-    // return response;
 }
 
 export const config = {

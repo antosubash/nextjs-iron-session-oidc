@@ -1,4 +1,4 @@
-export const config = {
+export const clientConfig = {
     url: process.env.NEXT_PUBLIC_API_URL,
     audience: process.env.NEXT_PUBLIC_API_URL,
     client_id: process.env.NEXT_PUBLIC_CLIENT_ID,
