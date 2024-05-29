@@ -13,7 +13,6 @@ export async function GET(request: IncomingMessage) {
     session.access_token = access_token;
     // call userinfo endpoint to get user info
     const userinfo = await client.userinfo(tokenSet);
-    // console.log(userinfo);
     // store userinfo in session
     session.userInfo = {
         sub: userinfo.sub,
