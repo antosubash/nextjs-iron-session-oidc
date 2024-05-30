@@ -31,7 +31,6 @@ export async function GET(request: IncomingMessage) {
     const redis = createRedisInstance();
     const redisKey = `session:${session.userInfo.sub}`;
     await redis.set(redisKey, JSON.stringify(redisSessionData));
-    // await redis.set(session.userInfo.sub, JSON.stringify(redisSessionData));
     await redis.quit();
     return Response.redirect(clientConfig.post_login_route);
 }

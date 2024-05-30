@@ -3,6 +3,8 @@ import { cookies } from "next/headers";
 import { Issuer } from "openid-client";
 import { clientConfig } from "./config";
 import { sessionOptions } from "./sessionOptions";
+import { isTokenExpired, refreshToken } from "./utils/auth";
+import { createRedisInstance } from "./utils/redis";
 
 export interface SessionData {
     isLoggedIn: boolean;
@@ -29,8 +31,13 @@ export function sleep(ms: number) {
 }
 
 export async function getSession() {
-    const session = await getIronSession<SessionData>(cookies(), sessionOptions);
-
+    let session = await getIronSession<SessionData>(cookies(), sessionOptions);
+    if (isTokenExpired(session.access_token!)) {
+        const redis = await createRedisInstance();
+        const client = await getClient();
+        await refreshToken(session, client, redis);
+        session = await getSession();
+    }
     if (!session.isLoggedIn) {
         session.isLoggedIn = defaultSession.isLoggedIn;
         session.access_token = defaultSession.access_token;
