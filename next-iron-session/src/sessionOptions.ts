@@ -9,4 +9,5 @@ export const sessionOptions: SessionOptions = {
         // if your localhost is not on `https`, then use: `secure: process.env.NODE_ENV === "production"`
         secure: process.env.NODE_ENV === "production",
     },
+    ttl: 60 * 60 * 24 * 7 // 1 week
 };

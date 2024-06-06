@@ -5,9 +5,12 @@ import { generators } from 'openid-client';
 
 export async function GET() {
     const session = await getSession();
+    console.log('session', session);
     const redis = createRedisInstance();
-    var redisSessionData = await redis.get(session?.userInfo?.sub!)
+    const redisKey = `session:${session.userInfo?.sub}`;
+    var redisSessionData = await redis.get(redisKey)
     var parsedSessionData = JSON.parse(redisSessionData!) as RedisSession;
+    console.log('parsedSessionData', parsedSessionData);
     const client = await getClient();
     var endSession = client.endSessionUrl({
         post_logout_redirect_uri: clientConfig.post_logout_redirect_uri,

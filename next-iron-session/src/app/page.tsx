@@ -1,6 +1,9 @@
+import { abpApplicationConfigurationGet } from '@/client';
 import Login from '../components/Login';
 import Link from 'next/link';
 export default async function Home() {
+  var appConfig = await abpApplicationConfigurationGet();
+  // console.log('appConfig', appConfig);
   return (
     <main className="flex min-h-[100dvh] items-center justify-center bg-gray-100 px-4 dark:bg-gray-900">
       <div className="max-w-md w-full space-y-4 text-center">

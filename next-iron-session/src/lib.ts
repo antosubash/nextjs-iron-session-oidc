@@ -5,6 +5,7 @@ import { clientConfig } from "./config";
 import { sessionOptions } from "./sessionOptions";
 import { isTokenExpired, refreshToken } from "./utils/auth";
 import { createRedisInstance } from "./utils/redis";
+import { tenantGetTenantGuid, tenantGetTenantHost } from "./client";
 
 export interface SessionData {
     isLoggedIn: boolean;
@@ -15,15 +16,16 @@ export interface SessionData {
         name: string,
         email: string,
         email_verified: boolean,
-        tenantId?: string
     };
+    tenantId?: string;
 }
 
 export const defaultSession: SessionData = {
     isLoggedIn: false,
     access_token: undefined,
     code_verifier: undefined,
-    userInfo: undefined
+    userInfo: undefined,
+    tenantId: undefined
 };
 
 export function sleep(ms: number) {
@@ -32,12 +34,13 @@ export function sleep(ms: number) {
 
 export async function getSession() {
     let session = await getIronSession<SessionData>(cookies(), sessionOptions);
-    if (isTokenExpired(session.access_token!)) {
+    console.log("session", session);
+    if (session.access_token && isTokenExpired(session.access_token!)) {
         const redis = await createRedisInstance();
         const client = await getClient();
         await refreshToken(session, client, redis);
         session = await getSession();
-    }
+    } 
     if (!session.isLoggedIn) {
         session.isLoggedIn = defaultSession.isLoggedIn;
         session.access_token = defaultSession.access_token;
@@ -56,4 +59,14 @@ export async function getClient() {
         token_endpoint_auth_method: "none"
     });
     return client;
+}
+
+export async function setTenantWithHost(host: string) {
+    const session = await getSession();
+    if (session.tenantId) {
+        return;
+    }
+    var tenantGuid = await tenantGetTenantGuid({ host: host });
+    session.tenantId = tenantGuid;
+    await session.save();
 }
