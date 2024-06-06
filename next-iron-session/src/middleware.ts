@@ -5,11 +5,8 @@ import { cookies } from "next/headers";
 import { sessionOptions } from "./sessionOptions";
 
 export async function middleware(request: NextRequest) {
-    var url = request.nextUrl.pathname;
-    console.log('middleware', url !== '/auth/set-tenant');
     const session = await getIronSession<SessionData>(cookies(), sessionOptions);
-    if (!session.tenantId && url !== '/auth/set-tenant') {
-        console.log('no tenantId');
+    if (!session.tenantId && request.nextUrl.pathname !== '/auth/set-tenant') {
         return NextResponse.redirect(new URL('/auth/set-tenant', request.url))
     }
 }
