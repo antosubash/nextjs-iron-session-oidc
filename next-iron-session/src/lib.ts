@@ -1,4 +1,4 @@
-import { getIronSession } from "iron-session";
+import { IronSession, getIronSession } from "iron-session";
 import { cookies } from "next/headers";
 import { Issuer } from "openid-client";
 import { clientConfig } from "./config";
@@ -28,23 +28,29 @@ export const defaultSession: SessionData = {
     tenantId: undefined
 };
 
-export function sleep(ms: number) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-export async function getSession() {
+export async function getSession(): Promise<IronSession<SessionData>> {
     let session = await getIronSession<SessionData>(cookies(), sessionOptions);
-    if (session.access_token && isTokenExpired(session.access_token!)) {
-        const redis = await createRedisInstance();
-        const client = await getClient();
-        await refreshToken(session, client, redis);
-        session = await getSession();
-    } 
-    if (!session.isLoggedIn) {
+    try {
+        if (session.access_token && isTokenExpired(session.access_token!)) {
+            const redis = createRedisInstance();
+            const client = await getClient();
+            await refreshToken(session, client, redis);
+            return await getSession();
+        }
+        if (!session.isLoggedIn) {
+            session.isLoggedIn = defaultSession.isLoggedIn;
+            session.access_token = defaultSession.access_token;
+            session.userInfo = defaultSession.userInfo;
+        }
+        return session;
+    } catch (error) {
+        console.error('Error getting session:', error);
         session.isLoggedIn = defaultSession.isLoggedIn;
         session.access_token = defaultSession.access_token;
+        session.userInfo = defaultSession.userInfo;
+        return session;
     }
-    return session;
+
 }
 
 
