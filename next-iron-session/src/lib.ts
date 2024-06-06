@@ -34,7 +34,6 @@ export function sleep(ms: number) {
 
 export async function getSession() {
     let session = await getIronSession<SessionData>(cookies(), sessionOptions);
-    console.log("session", session);
     if (session.access_token && isTokenExpired(session.access_token!)) {
         const redis = await createRedisInstance();
         const client = await getClient();

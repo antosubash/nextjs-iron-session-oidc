@@ -9,7 +9,6 @@ OpenAPI.BASE = process.env.NEXT_PUBLIC_API_URL!;
 
 OpenAPI.interceptors.request.use(async (options) => {
   const session = await getSession();
-  console.log("session", session);
   options.headers = {
     ...options.headers,
     Authorization: `Bearer ${session.access_token}`,
